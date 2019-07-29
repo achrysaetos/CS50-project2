@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+        <script>
+
+            if (!localStorage.getItem('tasks'))
+                localStorage.setItem('tasks', null);
+            document.addEventListener("DOMContentLoaded", () => {
+/*                
+                //socket.io broadcasting stuff
+                var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+                socket.on('connect', () => {
+                        document.querySelector('#tasks').innerHTML = localStorage.getItem('tasks');
+                        document.querySelector("#submit").onclick=() => {
+                            
+                                const selection = document.querySelector("#task").value;
+                                const bb = document.querySelector("#user").value;
+                                let a = localStorage.getItem('tasks');
+                                
+                                socket.emit('submit message', {'selection': selection, 'bb': bb, 'a': a});
+                            
+                        };
+                });
+                socket.on('announce message', data => {
+                    const li = document.createElement('li');
+                    li.innerHTML = data.bb.bold()+": ".bold()+data.selection;
+                    document.querySelector('#tasks').append(li);
+                    console.log(data.a);
+                    localStorage.setItem('tasks', data.a);
+
+                });
+*/
+                //socket.io broadcasting stuff
+                var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+                socket.on('connect', () => {
+                        document.querySelector("#submit").onclick=() => {
+                            
+                                const selection = document.querySelector("#task").value;
+                                const bb = document.querySelector("#user").value;
+                                socket.emit('submit message', {'selection': selection, 'bb': bb});
+                            
+                        };
+                });
+                socket.on('announce message', data => {
+                    const li = document.createElement('li');
+                    li.innerHTML = data.bb.bold()+": ".bold()+data.selection;
+                    document.querySelector('#tasks').append(li);
+                });
+
+                //////////////////////////////////////////////////////////////////////////////////////////
+                //what happens when we submit a message
+                document.querySelector("#task").disabled=true;
+                document.querySelector("#room").disabled=true;
+
+                document.querySelector("#submit").disabled=true;
+                document.querySelector("#task").onkeyup=() => {
+                    if (document.querySelector("#task").value.length>0)
+                        document.querySelector("#submit").disabled=false;
+                    else
+                        document.querySelector("#submit").disabled=true;
+                };
+                let count=0;
+                document.querySelector("#new_task").onsubmit=() => {
+                    count++;
+                    document.querySelector("#task").value="";
+                    document.querySelector("#submit").disabled=true;
+                    document.querySelector('#messeo').innerHTML="Messages sent: ".bold() + count;
+                    return false;
+                };
+
+                //what happens when we create a user on startup
+                document.querySelector("#user_button").disabled=true;
+                document.querySelector("#user").onkeyup=() => {
+                    if (document.querySelector("#user").value.length>0)
+                        document.querySelector("#user_button").disabled=false;
+                    else
+                        document.querySelector("#user_button").disabled=true;
+                };
+                let namee="";
+                document.querySelector("#change_user").onsubmit=() => {
+                    namee = document.querySelector('#user').value;
+                    document.querySelector('#nameo').innerHTML="Name: ".bold() + namee;
+                    document.querySelector("#user_button").disabled=true;
+
+                    document.querySelector("#task").disabled=false;
+                    document.querySelector("#room").disabled=false;
+                    document.querySelector("#user").disabled=true;
+                    alert(`Welcome ${namee}! You may now enter messages in the box below...`);
+                    document.querySelector("#task").focus();
+                    return false;
+                };
+
+                //what happens when we create a new room
+                document.querySelector("#room_button").disabled=true;
+                document.querySelector("#room").onkeyup=() => {
+                    if (document.querySelector("#room").value.length>0)
+                        document.querySelector("#room_button").disabled=false;
+                    else
+                        document.querySelector("#room_button").disabled=true;
+                };
+                document.querySelector("#change_room").onsubmit=() => {
+                    document.querySelector("#room").value="";
+                    document.querySelector("#room_button").disabled=true;
+                    return false;
+                };
+                //////////////////////////////////////////////////////////////////////////////////////////
+
+            });
+        </script>
+        <style>
+            h1{
+                font-size: 45px;
+                font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+                color:rgb(32, 32, 32);
+                text-align: center;
+                font-style: bold;
+            }
+            h2{
+                font-size: 30px;
+                font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+                color:rgb(32, 32, 32);
+                text-align: center;
+                font-style: italic;
+            }
+            h3{
+                font-size: 20px;
+                font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+                color:rgb(32, 32, 32);
+                font-style: bold;
+            }
+            .redyellow1{
+                background: linear-gradient(to bottom, rgba(139, 0, 0), yellow);
+                border: 5px solid darkred;
+            }
+            .redyellow2{
+                background: linear-gradient(to bottom, rgba(139, 0, 0), yellow);
+                border: 5px solid darkred;
+                height: 500px;
+            }
+            
+        </style>
+        <title>Secure Chat App</title>
+    </head>
+    <body>
+
+        <br>
+        <div class="container redyellow1">
+            <div class="row">
+                <div class="col-12">
+                    <h1>Secure Chat App</h1>
+                </div>
+            </div>
+        </div>
+        <br>
+
+        <div class="container">
+            <div class="row">
+
+                <div class="col-3 redyellow2">
+                    <h2>Chat Rooms</h2>
+                    <ul style="list-style-type:none;">
+                        <li><a href="{{url_for('index')}}">Room 1</a></li>
+                        <li><a href="{{url_for('index')}}">Room 2</a></li>
+                    </ul>
+                    <form id="change_room">
+                            <div class="text-center">
+                                <input id="room" autocomplete="off" placeholder="Enter room name..." type="text">
+                                <button id="room_button">New Room</button>
+                            </div>
+                    </form>
+                </div>
+
+                <div class="col-6">
+                    <div align="left"><ul id="tasks" style="list-style-type:none;"></ul></div>
+                    <form id="new_task">
+                        <center>
+                            <input id="task" autocomplete="off" placeholder="Enter message here..." type="text" size="50">
+                            <button id="submit">Send</button>
+                        </center>
+                    </form>
+                </div>
+
+                <div class="col-3 redyellow2">
+                    <h2>User Profile</h2>
+                        <h3>
+                            <ul style="list-style-type:none;">
+                                <li id="nameo"><b>Name: </b></li>
+                                <li id="messeo"><b>Messages sent: </b></li>
+                            </ul>
+                        </h3>
+                    <form id="change_user">
+                        <div class="text-center">
+                            <input id="user" autocomplete="off" autofocus placeholder="Enter username..." type="text">
+                            <button id="user_button">New User</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,4 +1,4 @@
 # Project 2
-using javascript and front ends
+Simple messaging web app, using SocketIO and Javascript.
 
-run "python3 app.py" in terminal
+**To start:** run `python3 app.py` in the terminal.
